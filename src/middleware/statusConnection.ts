@@ -36,7 +36,7 @@ export default async function statusConnection(
       );
       let index = 0;
       for (const contact of localArr) {
-        if (req.body.isGroup || req.body.isNewsletter) {
+        if (req.body.isGroup || req.body.isNewsletter || req.body.isLid) {
           localArr[index] = contact;
         } else if (numbers.indexOf(contact) < 0) {
           console.log(contact);
@@ -50,11 +50,15 @@ export default async function statusConnection(
               status: 'Connected',
               message: `O número ${num} não existe.`,
             });
-          } else {
+          } else if (profile?.id?._serialized) {
             if ((numbers as any).indexOf(profile.id._serialized) < 0) {
               (numbers as any).push(profile.id._serialized);
             }
             (localArr as any)[index] = profile.id._serialized;
+          } else {
+            if ((numbers as any).indexOf(contact) < 0) {
+              (numbers as any).push(contact);
+            }
           }
         }
         index++;
