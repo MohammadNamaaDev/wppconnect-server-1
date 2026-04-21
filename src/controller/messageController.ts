@@ -20,6 +20,19 @@ import { unlinkAsync } from '../util/functions';
 
 function returnError(req: Request, res: Response, error: any) {
   req.logger.error(error);
+
+  const errorMessage: string =
+    error?.message || error?.toString() || 'Unknown error';
+
+  if (errorMessage.includes('No LID for user')) {
+    return res.status(422).json({
+      status: 'Error',
+      message:
+        'Este número usa o sistema LID do WhatsApp e não pode ser contatado diretamente. Tente reconectar a sessão ou use o número no formato LID.',
+      error: errorMessage,
+    });
+  }
+
   res.status(500).json({
     status: 'Error',
     message: 'Erro ao enviar a mensagem.',
@@ -100,7 +113,8 @@ export async function sendMessage(req: Request, res: Response) {
       results.push(await req.client.sendText(contato, message, options));
     }
 
-    if (results.length === 0) res.status(400).json('Error sending message');
+    if (results.length === 0)
+      return res.status(400).json('Error sending message');
     req.io.emit('mensagem-enviada', results);
     returnSucess(res, results);
   } catch (error) {
@@ -231,7 +245,8 @@ export async function sendFile(req: Request, res: Response) {
       );
     }
 
-    if (results.length === 0) res.status(400).json('Error sending message');
+    if (results.length === 0)
+      return res.status(400).json('Error sending message');
     if (req.file) await unlinkAsync(pathFile);
     returnSucess(res, results);
   } catch (error) {
@@ -298,7 +313,8 @@ export async function sendVoice(req: Request, res: Response) {
       );
     }
 
-    if (results.length === 0) res.status(400).json('Error sending message');
+    if (results.length === 0)
+      return res.status(400).json('Error sending message');
     returnSucess(res, results);
   } catch (error) {
     returnError(req, res, error);
@@ -356,7 +372,8 @@ export async function sendVoice64(req: Request, res: Response) {
       );
     }
 
-    if (results.length === 0) res.status(400).json('Error sending message');
+    if (results.length === 0)
+      return res.status(400).json('Error sending message');
     returnSucess(res, results);
   } catch (error) {
     returnError(req, res, error);
@@ -410,7 +427,8 @@ export async function sendLinkPreview(req: Request, res: Response) {
       );
     }
 
-    if (results.length === 0) res.status(400).json('Error sending message');
+    if (results.length === 0)
+      return res.status(400).json('Error sending message');
     returnSucess(res, results);
   } catch (error) {
     returnError(req, res, error);
@@ -473,7 +491,8 @@ export async function sendLocation(req: Request, res: Response) {
       );
     }
 
-    if (results.length === 0) res.status(400).json('Error sending message');
+    if (results.length === 0)
+      return res.status(400).json('Error sending message');
     returnSucess(res, results);
   } catch (error) {
     returnError(req, res, error);
@@ -687,7 +706,7 @@ export async function sendOrderMessage(req: Request, res: Response) {
     }
 
     if (results.length === 0)
-      res.status(400).json('Error sending order message');
+      return res.status(400).json('Error sending order message');
     req.io.emit('mensagem-enviada', results);
     returnSucess(res, results);
   } catch (error) {
@@ -800,7 +819,8 @@ export async function sendStatusText(req: Request, res: Response) {
     const results: any = [];
     results.push(await req.client.sendText('status@broadcast', message));
 
-    if (results.length === 0) res.status(400).json('Error sending message');
+    if (results.length === 0)
+      return res.status(400).json('Error sending message');
     returnSucess(res, results);
   } catch (error) {
     returnError(req, res, error);
@@ -852,7 +872,8 @@ export async function replyMessage(req: Request, res: Response) {
       results.push(await req.client.reply(contato, message, messageId));
     }
 
-    if (results.length === 0) res.status(400).json('Error sending message');
+    if (results.length === 0)
+      return res.status(400).json('Error sending message');
     req.io.emit('mensagem-enviada', { message: message, to: phone });
     returnSucess(res, results);
   } catch (error) {
@@ -971,7 +992,8 @@ export async function sendImageAsSticker(req: Request, res: Response) {
       results.push(await req.client.sendImageAsSticker(contato, pathFile));
     }
 
-    if (results.length === 0) res.status(400).json('Error sending message');
+    if (results.length === 0)
+      return res.status(400).json('Error sending message');
     if (req.file) await unlinkAsync(pathFile);
     returnSucess(res, results);
   } catch (error) {
@@ -1029,7 +1051,8 @@ export async function sendImageAsStickerGif(req: Request, res: Response) {
       results.push(await req.client.sendImageAsStickerGif(contato, pathFile));
     }
 
-    if (results.length === 0) res.status(400).json('Error sending message');
+    if (results.length === 0)
+      return res.status(400).json('Error sending message');
     if (req.file) await unlinkAsync(pathFile);
     returnSucess(res, results);
   } catch (error) {
